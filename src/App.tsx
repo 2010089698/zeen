@@ -7,6 +7,7 @@ import {
   Text,
   View,
   Alert,
+  Easing,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,9 +25,21 @@ function AppInner() {
   // TODO: フォローアップでシステムテーマを拾う。現状はライト固定。
   const theme: Theme = getTheme('light');
   const insets = useSafeAreaInsets();
-  const blob1 = useState(new Animated.Value(0))[0];
-  const blob2 = useState(new Animated.Value(0))[0];
-  const blob3 = useState(new Animated.Value(0))[0];
+  const FIREFLY_COUNT = 18;
+  const fireflies = useMemo(
+    () =>
+      Array.from({ length: FIREFLY_COUNT }, (_, i) => ({
+        anim: new Animated.Value(0),
+        delay: i * 250,
+        duration: 9000 + ((i % 5) * 1000),
+        startX: -40 + ((i * 53) % 360),
+        startY:  40 + ((i * 89) % 560),
+        dx: 20 + ((i % 4) * 8),
+        dy: 14 + ((i % 3) * 8),
+        right: i % 3 === 0 ? 20 : undefined,
+      })),
+    []
+  );
   const {
     phase,
     currentSession,
@@ -66,24 +79,17 @@ function AppInner() {
     }
   };
 
-  const startBlobAnimation = (val: Animated.Value, delay: number, duration: number) => {
-    const loop = () => {
-      val.setValue(0);
-      Animated.timing(val, {
-        toValue: 1,
-        duration,
-        delay,
-        useNativeDriver: true,
-      }).start(() => loop());
-    };
-    loop();
+  const startFireflyAnimation = (val: Animated.Value, delay: number, duration: number) => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(val, { toValue: 1, duration, delay, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(val, { toValue: 0, duration, delay: 0, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      ])
+    ).start();
   };
 
   useMemo(() => {
-    // 20〜30秒周期
-    startBlobAnimation(blob1, 0, 24000);
-    startBlobAnimation(blob2, 4000, 28000);
-    startBlobAnimation(blob3, 8000, 26000);
+    fireflies.forEach(f => startFireflyAnimation(f.anim, f.delay, f.duration));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -103,42 +109,24 @@ function AppInner() {
   const renderRunning = () => (
     <View style={[styles.focusScreen, { backgroundColor: '#111312' }]}>
       <View style={styles.blobContainer} pointerEvents="none">
-        <Animated.View
-          style={[
-            styles.blob,
-            {
-              transform: [
-                { translateX: blob1.interpolate({ inputRange: [0, 1], outputRange: [-40, 30] }) },
-                { translateY: blob1.interpolate({ inputRange: [0, 1], outputRange: [10, -20] }) },
-              ],
-            },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.blobSmall,
-            {
-              right: 40,
-              transform: [
-                { translateX: blob2.interpolate({ inputRange: [0, 1], outputRange: [20, -30] }) },
-                { translateY: blob2.interpolate({ inputRange: [0, 1], outputRange: [-10, 30] }) },
-              ],
-            },
-          ]}
-        />
-        <Animated.View
-          style={[
-            styles.blob,
-            {
-              bottom: 120,
-              left: 60,
-              transform: [
-                { translateX: blob3.interpolate({ inputRange: [0, 1], outputRange: [0, 40] }) },
-                { translateY: blob3.interpolate({ inputRange: [0, 1], outputRange: [0, -20] }) },
-              ],
-            },
-          ]}
-        />
+        {fireflies.map((f, i) => (
+          <Animated.View
+            key={i}
+            style={[
+              styles.firefly,
+              f.right ? { right: f.right } : { left: f.startX },
+              { top: f.startY },
+              {
+                transform: [
+                  { translateX: f.anim.interpolate({ inputRange: [0, 1], outputRange: [-f.dx, f.dx] }) },
+                  { translateY: f.anim.interpolate({ inputRange: [0, 1], outputRange: [-f.dy, f.dy] }) },
+                  { scale: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.2] }) },
+                ],
+                opacity: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }),
+              },
+            ]}
+          />
+        ))}
       </View>
       <Text style={[styles.focusSubtitle, { color: '#A9AFA7' }]}>Focusing...</Text>
       <Text style={[styles.focusTimer, { color: '#E8E8E6' }]}>{formatDuration(remainingTime)}</Text>
@@ -300,6 +288,18 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     backgroundColor: 'rgba(110,139,119,0.12)',
     top: 80,
+  },
+  firefly: {
+    position: 'absolute',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(110,139,119,0.85)',
+    shadowColor: '#6E8B77',
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 2,
   },
   focusSubtitle: {
     fontSize: 16,
