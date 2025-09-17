@@ -30,6 +30,7 @@ function AppInner() {
     () =>
       Array.from({ length: FIREFLY_COUNT }, (_, i) => ({
         anim: new Animated.Value(Math.random()),
+        pos: new Animated.ValueXY({ x: 0, y: 0 }),
         delay: Math.floor(Math.random() * 4000),
         duration: 9000 + ((i % 5) * 1000),
         startX: -40 + ((i * 53) % 360),
@@ -79,7 +80,8 @@ function AppInner() {
     }
   };
 
-  const startFireflyAnimation = (val: Animated.Value, delay: number, duration: number) => {
+  // 明滅（パルス）
+  const startPulseAnimation = (val: Animated.Value, delay: number, duration: number) => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(val, { toValue: 1, duration, delay, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
@@ -88,8 +90,28 @@ function AppInner() {
     ).start();
   };
 
+  // 位置の徘徊（小さな目標点へ連続遷移）
+  const startWander = (pos: Animated.ValueXY, dx: number, dy: number) => {
+    const next = {
+      x: (Math.random() * 2 - 1) * dx,
+      y: (Math.random() * 2 - 1) * dy,
+    };
+    const dur = 3000 + Math.random() * 4000; // 3〜7秒
+    Animated.timing(pos, {
+      toValue: next,
+      duration: dur,
+      easing: Easing.inOut(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => {
+      startWander(pos, dx, dy);
+    });
+  };
+
   useMemo(() => {
-    fireflies.forEach(f => startFireflyAnimation(f.anim, f.delay, f.duration));
+    fireflies.forEach(f => {
+      startPulseAnimation(f.anim, f.delay, f.duration);
+      startWander(f.pos, f.dx, f.dy);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -118,8 +140,8 @@ function AppInner() {
               { top: f.startY },
               {
                 transform: [
-                  { translateX: f.anim.interpolate({ inputRange: [0, 1], outputRange: [-f.dx, f.dx] }) },
-                  { translateY: f.anim.interpolate({ inputRange: [0, 1], outputRange: [-f.dy, f.dy] }) },
+                  { translateX: f.pos.x },
+                  { translateY: f.pos.y },
                   { scale: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.1] }) },
                 ],
                 opacity: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.9] }),
