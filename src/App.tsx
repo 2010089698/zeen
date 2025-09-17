@@ -120,9 +120,9 @@ function AppInner() {
                 transform: [
                   { translateX: f.anim.interpolate({ inputRange: [0, 1], outputRange: [-f.dx, f.dx] }) },
                   { translateY: f.anim.interpolate({ inputRange: [0, 1], outputRange: [-f.dy, f.dy] }) },
-                  { scale: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1.2] }) },
+                  { scale: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.1] }) },
                 ],
-                opacity: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }),
+                opacity: f.anim.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.9] }),
               },
             ]}
           />
@@ -291,15 +291,15 @@ const styles = StyleSheet.create({
   },
   firefly: {
     position: 'absolute',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: 'rgba(110,139,119,0.85)',
     shadowColor: '#6E8B77',
-    shadowOpacity: 0.6,
-    shadowRadius: 8,
+    shadowOpacity: 0.7,
+    shadowRadius: 12,
     shadowOffset: { width: 0, height: 0 },
-    elevation: 2,
+    elevation: 3,
   },
   focusSubtitle: {
     fontSize: 16,
