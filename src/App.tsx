@@ -82,12 +82,15 @@ function AppInner() {
 
   // 明滅（パルス）
   const startPulseAnimation = (val: Animated.Value, delay: number, duration: number) => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(val, { toValue: 1, duration, delay, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(val, { toValue: 0, duration, delay: 0, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-      ])
-    ).start();
+    const core = Animated.sequence([
+      Animated.timing(val, { toValue: 1, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(val, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+    ]);
+    if (delay > 0) {
+      Animated.sequence([Animated.delay(delay), Animated.loop(core)]).start();
+    } else {
+      Animated.loop(core).start();
+    }
   };
 
   // 位置の徘徊（小さな目標点へ連続遷移）
