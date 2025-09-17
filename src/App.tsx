@@ -29,8 +29,8 @@ function AppInner() {
   const fireflies = useMemo(
     () =>
       Array.from({ length: FIREFLY_COUNT }, (_, i) => ({
-        anim: new Animated.Value(0),
-        delay: i * 250,
+        anim: new Animated.Value(Math.random()),
+        delay: Math.floor(Math.random() * 4000),
         duration: 9000 + ((i % 5) * 1000),
         startX: -40 + ((i * 53) % 360),
         startY:  40 + ((i * 89) % 560),
