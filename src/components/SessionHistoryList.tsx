@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { memo, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SessionRecord } from '../types';
 import { formatDateTime, formatDuration } from '../utils/time';
 
@@ -33,20 +33,27 @@ const renderItem = ({ item }: { item: SessionRecord }) => {
 const keyExtractor = (item: SessionRecord) => item.id;
 
 const SessionHistoryListComponent = ({ history, loading = false }: SessionHistoryListProps) => {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>直近のセッション履歴</Text>
-      {loading ? (
-        <Text style={styles.emptyText}>読み込み中...</Text>
-      ) : history.length === 0 ? (
-        <Text style={styles.emptyText}>まだセッションがありません</Text>
-      ) : (
-        <FlatList
-          data={history}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
+      <Pressable style={styles.headingRow} onPress={() => setExpanded(v => !v)}>
+        <Text style={styles.heading}>直近のセッション履歴</Text>
+        <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
+      </Pressable>
+      {expanded && (
+        loading ? (
+          <Text style={styles.emptyText}>読み込み中...</Text>
+        ) : history.length === 0 ? (
+          <Text style={styles.emptyText}>まだセッションがありません</Text>
+        ) : (
+          <FlatList
+            data={history}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+          />
+        )
       )}
     </View>
   );
@@ -61,12 +68,22 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     paddingTop: 0,
   },
+  headingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
   heading: {
     fontSize: 16,
     fontWeight: '400',
     color: '#6b7280',
-    marginBottom: 24,
     textAlign: 'center',
+    marginRight: 8,
+  },
+  chevron: {
+    fontSize: 12,
+    color: '#6b7280',
   },
   emptyText: {
     color: '#9ca3af',
