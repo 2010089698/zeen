@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { CurrentSessionState, FocusFeedback, SessionPhase, SessionRecord } from '../types';
 import { loadSessions, saveSessions } from '../storage/sessionStorage';
 import { syncSessions } from '../services/syncService';
+import { updateSyncMetrics } from '../services/syncMetrics';
 
 const HISTORY_LIMIT = 10;
 
@@ -42,6 +43,21 @@ export function useSessionManager() {
       isMountedRef.current = false;
     };
   }, []);
+
+  // オンライン復帰時の自動再同期
+  // React Nativeでは、ネットワーク状態の監視には@react-native-community/netinfoを使用する必要があります
+  // 現在はこの機能を無効化しています
+  // useEffect(() => {
+  //   const onOnline = () => {
+  //     // オンライン復帰で履歴の更新トリガーを軽く発火
+  //     setHistory(prev => [...prev]);
+  //   };
+  //   
+  //   // React Nativeでは、ネットワーク状態の監視が必要な場合があります
+  //   // ここでは基本的な実装のみ
+  //   window.addEventListener('online', onOnline);
+  //   return () => window.removeEventListener('online', onOnline);
+  // }, []);
 
   useEffect(() => {
     if (phase !== 'running' || timerStartRef.current === null) {
@@ -208,24 +224,44 @@ export function useSessionManager() {
     }
     let cancelled = false;
     (async () => {
-      const syncedIds = await syncSessions(unsynced);
-      if (cancelled || !syncedIds.length) {
+      const { syncedIds, retryIds } = await syncSessions(unsynced);
+      if (cancelled) {
         return;
       }
-      setHistory((prev) => {
-        const syncedSet = new Set(syncedIds);
-        const updated = prev.map((record) =>
-          syncedSet.has(record.id) ? { ...record, synced: true } : record,
-        );
-        void saveSessions(updated);
-        return updated;
-      });
-      setLastCompletedSession((prev) => {
-        if (!prev) {
-          return prev;
-        }
-        return syncedIds.includes(prev.id) ? { ...prev, synced: true } : prev;
-      });
+      
+      if (syncedIds.length) {
+        // 同期済みフラグを更新
+        setHistory((prev) => {
+          const syncedSet = new Set(syncedIds);
+          const updated = prev.map((record) =>
+            syncedSet.has(record.id) ? { ...record, synced: true } : record,
+          );
+          void saveSessions(updated);
+          return updated;
+        });
+        setLastCompletedSession((prev) => {
+          if (!prev) {
+            return prev;
+          }
+          return syncedIds.includes(prev.id) ? { ...prev, synced: true } : prev;
+        });
+        
+        // 同期成功メトリクスを更新
+        void updateSyncMetrics({
+          lastSyncAt: new Date().toISOString(),
+          successCount: syncedIds.length,
+        });
+      }
+      
+      if (retryIds.length) {
+        // リトライが必要なIDをログに記録
+        console.log('Sessions requiring retry:', retryIds);
+        
+        // リトライメトリクスを更新
+        void updateSyncMetrics({
+          retryCount: retryIds.length,
+        });
+      }
     })();
     return () => {
       cancelled = true;

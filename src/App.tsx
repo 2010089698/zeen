@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Pressable,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -156,7 +155,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>{content}</ScrollView>
+      <View style={styles.scrollContent}>{content}</View>
     </SafeAreaView>
   );
 }
@@ -167,6 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   scrollContent: {
+    flex: 1,
     padding: 24,
   },
   card: {
