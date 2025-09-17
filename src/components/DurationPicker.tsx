@@ -48,27 +48,27 @@ const styles = StyleSheet.create({
   },
   option: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingVertical: 16,
+    borderRadius: 0,
     borderWidth: 1,
-    borderColor: '#d1d5db',
-    backgroundColor: '#fff',
+    borderColor: '#3B6E57',
+    backgroundColor: 'transparent',
   },
   optionSpacing: {
-    marginRight: 12,
+    marginRight: 16,
   },
   selectedOption: {
-    backgroundColor: '#2563eb',
-    borderColor: '#1d4ed8',
+    backgroundColor: '#3B6E57',
+    borderColor: '#3B6E57',
   },
   optionText: {
     textAlign: 'center',
     fontSize: 16,
-    color: '#1f2937',
-    fontWeight: '500',
+    color: '#3B6E57',
+    fontWeight: '400',
   },
   selectedOptionText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: '#ffffff',
+    fontWeight: '400',
   },
 });
