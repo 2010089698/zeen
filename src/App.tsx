@@ -224,9 +224,15 @@ function AppInner() {
   }
 
   return (
-    <SafeAreaView edges={['left','right','bottom']} style={[styles.safeArea, { backgroundColor: theme.colors.background }]}>
+    <SafeAreaView
+      edges={['top','left','right','bottom']}
+      style={[
+        styles.safeArea,
+        { backgroundColor: (phase === 'running' || phase === 'paused') ? '#111312' : theme.colors.background },
+      ]}
+    >
       <StatusBar style={phase === 'running' || phase === 'paused' ? 'light' : 'dark'} />
-      <View style={[styles.scrollContent, { paddingTop: insets.top + 16 }]}>{content}</View>
+      <View style={[styles.scrollContent, { paddingTop: 16 }]}>{content}</View>
     </SafeAreaView>
   );
 }
