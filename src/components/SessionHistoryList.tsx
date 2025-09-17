@@ -1,5 +1,5 @@
 import { memo, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SessionRecord } from '../types';
 import { formatDateTime, formatDuration } from '../utils/time';
 
@@ -34,6 +34,9 @@ const keyExtractor = (item: SessionRecord) => item.id;
 
 const SessionHistoryListComponent = ({ history, loading = false }: SessionHistoryListProps) => {
   const [expanded, setExpanded] = useState(false);
+  const { height } = useWindowDimensions();
+  // 画面高さに応じた最大高さ（過度に大きく/小さくならないように上下限）
+  const listMaxHeight = Math.max(160, Math.min(360, height * 0.35));
 
   return (
     <View style={styles.container}>
@@ -52,6 +55,9 @@ const SessionHistoryListComponent = ({ history, loading = false }: SessionHistor
             keyExtractor={keyExtractor}
             renderItem={renderItem}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
+            style={[styles.list, { maxHeight: listMaxHeight }]}
+            contentContainerStyle={styles.listContent}
+            bounces={false}
           />
         )
       )}
@@ -92,6 +98,12 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 20,
+  },
+  list: {
+    overflow: 'hidden',
+  },
+  listContent: {
+    paddingBottom: 4,
   },
   item: {
     backgroundColor: 'transparent',
