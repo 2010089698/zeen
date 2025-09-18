@@ -3,7 +3,11 @@
   "build": {
     "internal": {
       "distribution": "internal",
-      "android": { "gradleCommand": ":app:assembleRelease" }
+      "android": { "gradleCommand": ":app:assembleRelease" },
+      "env": {
+        "EXPO_PUBLIC_ENABLE_REAL_SYNC": "true",
+        "EXPO_PUBLIC_API_BASE_URL": "https://lgkptaaacclknqzdvmff.supabase.co/functions/v1"
+      }
     }
   }
 }
