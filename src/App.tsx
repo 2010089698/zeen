@@ -154,7 +154,7 @@ function AppInner() {
         ))}
       </View>
       <Text style={[styles.focusSubtitle, { color: '#A9AFA7' }]}>Focusing...</Text>
-      <Text style={[styles.focusTimer, { color: '#E8E8E6' }]}>{formatDuration(remainingTime)}</Text>
+      <Text style={[styles.focusTimer]}>{formatDuration(remainingTime)}</Text>
       <Text style={[styles.focusCaption, { color: '#A9AFA7' }]}>Stay concentrated</Text>
       <View style={styles.buttonRow}>
         <Pressable style={[styles.secondaryButton, styles.flexButton, styles.buttonSpacing, { borderColor: '#6E8B77' }]} onPress={pauseSession}>
@@ -170,7 +170,7 @@ function AppInner() {
   const renderPaused = () => (
     <View style={[styles.focusScreen, { backgroundColor: '#111312' }]}>
       <Text style={[styles.focusSubtitle, { color: '#A9AFA7' }]}>Paused</Text>
-      <Text style={[styles.focusTimer, { color: '#E8E8E6' }]}>{formatDuration(remainingTime)}</Text>
+      <Text style={[styles.focusTimer]}>{formatDuration(remainingTime)}</Text>
       <Text style={[styles.focusCaption, { color: '#A9AFA7' }]}>Tap to resume or end</Text>
       <View style={styles.buttonRow}>
         <Pressable style={[styles.primaryButton, styles.flexButton, styles.buttonSpacing, { backgroundColor: '#6E8B77' }]} onPress={resumeSession}>
@@ -338,6 +338,7 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     textAlign: 'center',
     marginVertical: 24,
+    color: '#FFD54F',
   },
   focusCaption: {
     fontSize: 16,
