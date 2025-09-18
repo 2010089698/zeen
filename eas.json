@@ -6,7 +6,8 @@
       "android": { "gradleCommand": ":app:assembleRelease" },
       "env": {
         "EXPO_PUBLIC_ENABLE_REAL_SYNC": "true",
-        "EXPO_PUBLIC_API_BASE_URL": "https://lgkptaaacclknqzdvmff.supabase.co/functions/v1"
+        "EXPO_PUBLIC_API_BASE_URL": "https://lgkptaaacclknqzdvmff.supabase.co/functions/v1",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxna3B0YWFhY2Nsa25xemR2bWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNzI0NjksImV4cCI6MjA3MzY0ODQ2OX0.fbAJz4iNyvqEa55bn8ha4Rs7lou55Rw8jaFegcLu9eo"
       }
     }
   }

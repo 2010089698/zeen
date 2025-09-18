@@ -4,7 +4,10 @@ import { getAnonId } from './anonId';
 const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL || 'https://api.example.com';
 const BATCH_SIZE = 50;
 const TIMEOUT_MS = 5000;
-const ENABLE_REAL_SYNC = process.env.EXPO_PUBLIC_ENABLE_REAL_SYNC === 'true';
+// NOTE: Read real-sync flag at call time to respect runtime env overrides in tests
+function isRealSyncEnabled(): boolean {
+  return process.env.EXPO_PUBLIC_ENABLE_REAL_SYNC === 'true';
+}
 
 type BatchResponse = {
   saved: string[];
@@ -12,13 +15,14 @@ type BatchResponse = {
   errors: { id?: string; message: string }[];
 };
 
-function timeoutFetch(input: RequestInfo, init: RequestInit = {}, ms: number): Promise<Response> {
+async function timeoutFetch(input: RequestInfo, init: RequestInit = {}, ms: number): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), ms);
-  
-  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
     clearTimeout(timeoutId);
-  });
+  }
 }
 
 async function postBatch(records: SessionRecord[]): Promise<BatchResponse> {
@@ -34,6 +38,8 @@ async function postBatch(records: SessionRecord[]): Promise<BatchResponse> {
     headers: {
       'Content-Type': 'application/json',
       'X-Anon-Id': anonId,
+      'Authorization': `Bearer ${process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? ''}`,
+      'apikey': process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '',
     },
     body: JSON.stringify({
       sessions: records.map(({ synced, ...r }) => r), // サーバーにsyncedは不要
@@ -106,18 +112,18 @@ function isOnline(): boolean {
 }
 
 export async function syncSessions(records: SessionRecord[]): Promise<{ syncedIds: string[], retryIds: string[] }> {
-  console.log('🔄 syncSessions called with:', records.length, 'records');
-  console.log('⚙️ ENABLE_REAL_SYNC:', ENABLE_REAL_SYNC);
-  console.log('🌐 API_BASE:', API_BASE);
+  console.log('syncSessions called with:', records.length, 'records');
+  console.log('ENABLE_REAL_SYNC:', isRealSyncEnabled());
+  console.log('API_BASE:', API_BASE);
   
   if (!records.length) {
-    console.log('📭 No records to sync, returning empty result');
+    console.log('No records to sync, returning empty result');
     return { syncedIds: [], retryIds: [] };
   }
 
   // 実同期が無効な場合はモック動作
-  if (!ENABLE_REAL_SYNC) {
-    console.log('⚠️ Mock sync mode: simulating successful sync');
+  if (!isRealSyncEnabled()) {
+    console.log('Mock sync mode: simulating successful sync');
     await new Promise(resolve => setTimeout(resolve, 400)); // モック遅延
     return { syncedIds: records.map(r => r.id), retryIds: [] };
   }
@@ -137,11 +143,11 @@ export async function syncSessions(records: SessionRecord[]): Promise<{ syncedId
 
   for (const chunk of chunks) {
     try {
-      console.log('📦 Processing chunk with', chunk.length, 'records');
+      console.log('Processing chunk with', chunk.length, 'records');
       // リトライ付きでバッチ送信
       const result = await withRetry(() => postBatch(chunk));
       
-      console.log('📈 Chunk result:', {
+      console.log('Chunk result:', {
         saved: result.saved.length,
         skipped: result.skipped.length,
         errors: result.errors.length
@@ -156,12 +162,12 @@ export async function syncSessions(records: SessionRecord[]): Promise<{ syncedId
       }
     } catch (e) {
       // ネットワーク断など
-      console.warn('❌ Batch sync failed:', e);
+      console.warn('Batch sync failed:', e);
       retryIds.push(...chunk.map(r => r.id));
     }
   }
   
-  console.log('🏁 Final sync result:', {
+  console.log('Final sync result:', {
     syncedIds: syncedIds.length,
     retryIds: retryIds.length
   });

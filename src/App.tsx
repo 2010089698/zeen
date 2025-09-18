@@ -71,6 +71,19 @@ function AppInner() {
     setSubmitting(true);
     try {
       await submitFocusFeedback(value);
+      // 例: フィードバックをアンケートとしても保存したい場合
+      // 運用に合わせて呼び出し箇所は調整してください
+      try {
+        const { submitSurvey } = await import('./services/surveyService');
+        await submitSurvey({
+          surveyKey: 'focus_feedback_v1',
+          answers: { value },
+          metadata: null,
+        });
+      } catch (e) {
+        // アンケート送信は非致命的
+        console.warn('Survey submit failed (non-blocking):', e);
+      }
       // 成功時のみホームへ戻す
       resetSession();
     } catch (e) {

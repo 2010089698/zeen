@@ -1,6 +1,11 @@
 // supabase/functions/sessions-batch/index.ts
+// @ts-ignore - URL import is resolved by Deno runtime
 import { serve } from "https://deno.land/std/http/server.ts";
+// @ts-ignore - URL import is resolved by Deno runtime
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// Declare Deno for TypeScript in non-Deno tooling
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const Deno: any;
 
 type Session = {
   id: string;
@@ -12,11 +17,11 @@ type Session = {
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type, X-Anon-Id",
+  "Access-Control-Allow-Headers": "Content-Type, X-Anon-Id, Authorization, apikey",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-serve(async (req) => {
+serve(async (req: any) => {
   const anonId = req.headers.get("X-Anon-Id");
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   if (req.method !== "POST") {
