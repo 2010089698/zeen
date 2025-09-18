@@ -5,11 +5,22 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false
     },
-    "android": {},
-    "web": {}
+    "android": {
+      "package": "com.info.zeen",
+      "versionCode": 1
+    },
+    "web": {},
+    "extra": {
+      "eas": {
+        "projectId": "182eb1e9-035c-460b-8ffe-677d3f2cfb4d"
+      }
+    },
+    "owner": "2010089698"
   }
 }
