@@ -49,26 +49,26 @@ const styles = StyleSheet.create({
   option: {
     flex: 1,
     paddingVertical: 16,
-    borderRadius: 0,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#3B6E57',
+    borderColor: '#6E8B77',
     backgroundColor: 'transparent',
   },
   optionSpacing: {
     marginRight: 16,
   },
   selectedOption: {
-    backgroundColor: '#3B6E57',
-    borderColor: '#3B6E57',
+    backgroundColor: 'rgba(110, 139, 119, 0.12)',
+    borderColor: '#6E8B77',
   },
   optionText: {
     textAlign: 'center',
     fontSize: 16,
-    color: '#3B6E57',
+    color: '#6E8B77',
     fontWeight: '400',
   },
   selectedOptionText: {
-    color: '#ffffff',
+    color: '#6E8B77',
     fontWeight: '400',
   },
 });

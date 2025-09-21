@@ -8,6 +8,9 @@ type ColorScheme = {
   accent: string;
   accentPressed: string;
   border: string;
+  // ZEENトークン追加
+  inkBlack: string;
+  mossGreen: string;
 };
 
 type Typography = {
@@ -17,6 +20,12 @@ type Typography = {
     letterSpacing: number;
   };
   titleL: {
+    fontSize: number;
+    fontWeight: '300' | '400' | '500' | '600' | '700' | '800' | '200';
+    letterSpacing: number;
+  };
+  // ZEENトークン追加
+  timer: {
     fontSize: number;
     fontWeight: '300' | '400' | '500' | '600' | '700' | '800' | '200';
     letterSpacing: number;
@@ -42,6 +51,11 @@ export type Theme = {
     base: number; // 16
     pill: number; // 24
   };
+  // ZEENトークン追加
+  padding: {
+    horizontal: number; // 24
+    vertical: number; // 32
+  };
   shadow: {
     color: string;
     opacity: number; // iOS shadowOpacity 0.08
@@ -52,13 +66,20 @@ export type Theme = {
 };
 
 const BASE_TYPOGRAPHY: Typography = {
-  titleXL: { fontSize: 40, fontWeight: '300', letterSpacing: 0.5 },
+  titleXL: { fontSize: 44, fontWeight: '300', letterSpacing: 0.5 }, // ZEENトークン: 44/300
   titleL: { fontSize: 36, fontWeight: '300', letterSpacing: 0.5 },
+  timer: { fontSize: 80, fontWeight: '300', letterSpacing: 0.5 }, // ZEENトークン: 80/300
   body: { fontSize: 16, fontWeight: '400', letterSpacing: 0.5 },
   caption: { fontSize: 14, fontWeight: '300', letterSpacing: 0.5 },
 };
 
 const SPACING_SCALE = (n: number) => 8 * n;
+
+// ZEENトークン定義
+const ZEEN_PADDING = {
+  horizontal: 24,
+  vertical: 32,
+};
 
 const SHADOW_COMMON = {
   color: '#000000',
@@ -78,10 +99,14 @@ export const lightTheme: Theme = {
     accent: '#6E8B77',
     accentPressed: '#5E7B68',
     border: '#DADDD6',
+    // ZEENトークン追加
+    inkBlack: '#0F1110',
+    mossGreen: '#6E8B77',
   },
   typography: BASE_TYPOGRAPHY,
   spacing: SPACING_SCALE,
   radius: { base: 16, pill: 24 },
+  padding: ZEEN_PADDING,
   shadow: SHADOW_COMMON,
 };
 
@@ -95,10 +120,14 @@ export const darkTheme: Theme = {
     accent: '#6E8B77',
     accentPressed: '#5E7B68',
     border: '#2A2D29',
+    // ZEENトークン追加
+    inkBlack: '#0F1110',
+    mossGreen: '#6E8B77',
   },
   typography: BASE_TYPOGRAPHY,
   spacing: SPACING_SCALE,
   radius: { base: 16, pill: 24 },
+  padding: ZEEN_PADDING,
   shadow: SHADOW_COMMON,
 };
 

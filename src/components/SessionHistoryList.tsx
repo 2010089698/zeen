@@ -14,16 +14,16 @@ const renderItem = ({ item }: { item: SessionRecord }) => {
       <View style={styles.itemHeader}>
         <Text style={styles.itemTitle}>{formatDateTime(item.startedAt)}</Text>
         <Text style={[styles.syncBadge, item.synced ? styles.synced : styles.pending]}>
-          {item.synced ? '同期済み' : '未同期'}
+          {item.synced ? 'Synced' : 'Not Synced'}
         </Text>
       </View>
-      <Text style={styles.itemDetail}>予定: {formatDuration(item.scheduledDurationSec)}</Text>
-      <Text style={styles.itemDetail}>実績: {formatDuration(item.actualDurationSec)}</Text>
-      <Text style={styles.itemDetail}>中断回数: {item.pauseCount}</Text>
+      <Text style={styles.itemDetail}>Scheduled: {formatDuration(item.scheduledDurationSec)}</Text>
+      <Text style={styles.itemDetail}>Actual: {formatDuration(item.actualDurationSec)}</Text>
+      <Text style={styles.itemDetail}>Interruptions: {item.pauseCount}</Text>
       <Text style={styles.itemDetail}>
-        集中できた?:
+        Were you able to concentrate?:
         <Text style={styles.feedbackText}>
-          {item.focusFeedback === 'yes' ? ' はい' : item.focusFeedback === 'no' ? ' いいえ' : ' 未回答'}
+          {item.focusFeedback === 'yes' ? ' Yes' : item.focusFeedback === 'no' ? ' No' : ' Unanswered'}
         </Text>
       </Text>
     </View>
@@ -41,14 +41,14 @@ const SessionHistoryListComponent = ({ history, loading = false }: SessionHistor
   return (
     <View style={styles.container}>
       <Pressable style={styles.headingRow} onPress={() => setExpanded(v => !v)}>
-        <Text style={styles.heading}>直近のセッション履歴</Text>
+        <Text style={styles.heading}>Recent Session History</Text>
         <Text style={styles.chevron}>{expanded ? '▲' : '▼'}</Text>
       </Pressable>
       {expanded && (
         loading ? (
-          <Text style={styles.emptyText}>読み込み中...</Text>
+          <Text style={styles.emptyText}>Loading...</Text>
         ) : history.length === 0 ? (
-          <Text style={styles.emptyText}>まだセッションがありません</Text>
+          <Text style={styles.emptyText}>No sessions yet</Text>
         ) : (
           <FlatList
             data={history}

@@ -8,14 +8,16 @@ import {
   View,
   Alert,
   Easing,
+  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DurationPicker } from './components/DurationPicker';
 import { SessionHistoryList } from './components/SessionHistoryList';
+import { BreathLayer } from './components/BreathLayer';
 import { useSessionManager } from './hooks/useSessionManager';
 import { formatDuration } from './utils/time';
-import { getTheme, Theme } from './theme';
+import { getTheme, Theme, darkTheme } from './theme';
 
 const DURATION_OPTIONS = [300, 900, 1500, 2700];
 
@@ -25,7 +27,7 @@ function AppInner() {
   // TODO: フォローアップでシステムテーマを拾う。現状はライト固定。
   const theme: Theme = getTheme('light');
   const insets = useSafeAreaInsets();
-  const FIREFLY_COUNT = 18;
+  const FIREFLY_COUNT = 10;
   const fireflies = useMemo(
     () =>
       Array.from({ length: FIREFLY_COUNT }, (_, i) => ({
@@ -35,8 +37,8 @@ function AppInner() {
         duration: 9000 + ((i % 5) * 1000),
         startX: -40 + ((i * 53) % 360),
         startY:  40 + ((i * 89) % 560),
-        dx: 20 + ((i % 4) * 8),
-        dy: 14 + ((i % 3) * 8),
+        dx: 12 + ((i % 4) * 4),
+        dy: 8 + ((i % 3) * 4),
         right: i % 3 === 0 ? 20 : undefined,
       })),
     []
@@ -87,7 +89,7 @@ function AppInner() {
       // 成功時のみホームへ戻す
       resetSession();
     } catch (e) {
-      Alert.alert('保存に失敗しました', '通信状態を確認して、もう一度お試しください。');
+      Alert.alert('Failed to save', 'Please check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -96,8 +98,8 @@ function AppInner() {
   // 明滅（パルス）
   const startPulseAnimation = (val: Animated.Value, delay: number, duration: number) => {
     const core = Animated.sequence([
-      Animated.timing(val, { toValue: 1, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      Animated.timing(val, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(val, { toValue: 0.85, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      Animated.timing(val, { toValue: 0.4, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
     ]);
     if (delay > 0) {
       Animated.sequence([Animated.delay(delay), Animated.loop(core)]).start();
@@ -112,7 +114,7 @@ function AppInner() {
       x: (Math.random() * 2 - 1) * dx,
       y: (Math.random() * 2 - 1) * dy,
     };
-    const dur = 3000 + Math.random() * 4000; // 3〜7秒
+    const dur = 3500 + Math.random() * 3500; // 3.5〜7秒
     Animated.timing(pos, {
       toValue: next,
       duration: dur,
@@ -132,20 +134,24 @@ function AppInner() {
   }, []);
 
   const renderIdle = () => (
-    <View style={[styles.card, { backgroundColor: theme.colors.background }]}>
-      <Text style={[styles.appTitle, { color: theme.colors.text }]}>Zeen</Text>
+    <View style={[styles.card, { backgroundColor: theme.colors.inkBlack }]}>
+      <BreathLayer position="bottom-left" />
+      <BreathLayer position="top-right" />
+      <Text style={[styles.appTitle, { color: darkTheme.colors.text }]}>Zeen</Text>
       <Pressable
         style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
         onPress={handleStart}
       >
-        <Text style={styles.primaryButtonText}>Start Focus</Text>
+        <Text style={styles.primaryButtonText}>Start</Text>
       </Pressable>
       <Text style={[styles.helperText, { color: theme.colors.textSubtle }]}>Ready to focus</Text>
     </View>
   );
 
   const renderRunning = () => (
-    <View style={[styles.focusScreen, { backgroundColor: '#111312' }]}>
+    <View style={[styles.focusScreen, { backgroundColor: theme.colors.inkBlack }]}>
+      <BreathLayer position="bottom-left" />
+      <BreathLayer position="top-right" />
       <View style={styles.blobContainer} pointerEvents="none">
         {fireflies.map((f, i) => (
           <Animated.View
@@ -166,31 +172,34 @@ function AppInner() {
           />
         ))}
       </View>
-      <Text style={[styles.focusSubtitle, { color: '#A9AFA7' }]}>Focusing...</Text>
-      <Text style={[styles.focusTimer, { color: '#E8E8E6' }]}>{formatDuration(remainingTime)}</Text>
-      <Text style={[styles.focusCaption, { color: '#A9AFA7' }]}>Stay concentrated</Text>
+      <Text style={[styles.focusSubtitle, { color: theme.colors.textSubtle }]}>Focusing...</Text>
+      <Text style={[styles.doNotDisturbText, { color: '#8C9188' }]}>Do Not Disturb</Text>
+      <Text style={[styles.focusTimer, { color: darkTheme.colors.text }]}>{formatDuration(remainingTime)}</Text>
+      <Text style={[styles.focusCaption, { color: theme.colors.textSubtle }]}>Stay concentrated</Text>
       <View style={styles.buttonRow}>
-        <Pressable style={[styles.secondaryButton, styles.flexButton, styles.buttonSpacing, { borderColor: '#6E8B77' }]} onPress={pauseSession}>
-          <Text style={[styles.secondaryButtonText, { color: '#6E8B77' }]}>一時停止</Text>
+        <Pressable style={[styles.secondaryButton, styles.flexButton, styles.buttonSpacing, { borderColor: theme.colors.accent }]} onPress={pauseSession}>
+          <Text style={[styles.secondaryButtonText, { color: theme.colors.accent }]}>Pause</Text>
         </Pressable>
-        <Pressable style={[styles.primaryButton, styles.flexButton, { backgroundColor: '#6E8B77' }]} onPress={() => void endSession()}>
-          <Text style={styles.primaryButtonText}>終了</Text>
+        <Pressable style={[styles.primaryButton, styles.flexButton, { backgroundColor: theme.colors.accent }]} onPress={() => void endSession()}>
+          <Text style={styles.primaryButtonText}>End</Text>
         </Pressable>
       </View>
     </View>
   );
 
   const renderPaused = () => (
-    <View style={[styles.focusScreen, { backgroundColor: '#111312' }]}>
-      <Text style={[styles.focusSubtitle, { color: '#A9AFA7' }]}>Paused</Text>
-      <Text style={[styles.focusTimer, { color: '#E8E8E6' }]}>{formatDuration(remainingTime)}</Text>
-      <Text style={[styles.focusCaption, { color: '#A9AFA7' }]}>Tap to resume or end</Text>
+    <View style={[styles.focusScreen, { backgroundColor: theme.colors.inkBlack }]}>
+      <BreathLayer position="bottom-left" />
+      <BreathLayer position="top-right" />
+      <Text style={[styles.focusSubtitle, { color: theme.colors.textSubtle }]}>Paused</Text>
+      <Text style={[styles.focusTimer, { color: darkTheme.colors.text }]}>{formatDuration(remainingTime)}</Text>
+      <Text style={[styles.focusCaption, { color: theme.colors.textSubtle }]}>Tap to resume or end</Text>
       <View style={styles.buttonRow}>
-        <Pressable style={[styles.primaryButton, styles.flexButton, styles.buttonSpacing, { backgroundColor: '#6E8B77' }]} onPress={resumeSession}>
-          <Text style={styles.primaryButtonText}>再開</Text>
+        <Pressable style={[styles.primaryButton, styles.flexButton, styles.buttonSpacing, { backgroundColor: theme.colors.accent }]} onPress={resumeSession}>
+          <Text style={styles.primaryButtonText}>Resume</Text>
         </Pressable>
-        <Pressable style={[styles.secondaryButton, styles.flexButton, { borderColor: '#6E8B77' }]} onPress={() => void endSession()}>
-          <Text style={[styles.secondaryButtonText, { color: '#6E8B77' }]}>終了</Text>
+        <Pressable style={[styles.secondaryButton, styles.flexButton, { borderColor: theme.colors.accent }]} onPress={() => void endSession()}>
+          <Text style={[styles.secondaryButtonText, { color: theme.colors.accent }]}>End</Text>
         </Pressable>
       </View>
     </View>
@@ -199,25 +208,27 @@ function AppInner() {
   const renderCompleted = () => {
     if (!lastCompletedSession) {
       return (
-        <View style={[styles.card, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.card, { backgroundColor: theme.colors.inkBlack }]}>
           <ActivityIndicator size="small" color={theme.colors.accent} />
         </View>
       );
     }
     return (
-      <View style={[styles.card, { backgroundColor: theme.colors.background }]}>
-        <Text style={[styles.titleSummary, { color: theme.colors.text }]}>おつかれさまでした</Text>
-        <Text style={[styles.summaryText, { color: theme.colors.textSubtle }]}>予定: {formatDuration(lastCompletedSession.scheduledDurationSec)}</Text>
-        <Text style={[styles.summaryText, { color: theme.colors.textSubtle }]}>実績: {formatDuration(lastCompletedSession.actualDurationSec)}</Text>
-        <Text style={[styles.summaryText, { color: theme.colors.textSubtle }]}>中断回数: {lastCompletedSession.pauseCount}回</Text>
-        <Text style={[styles.subtitle, styles.feedbackSubtitle, { color: theme.colors.text }]}>集中できましたか？</Text>
+      <View style={[styles.card, { backgroundColor: theme.colors.inkBlack }]}>
+        <BreathLayer position="bottom-left" />
+        <BreathLayer position="top-right" />
+        <Text style={[styles.titleSummary, { color: darkTheme.colors.text }]}>Well done</Text>
+        <Text style={[styles.summaryText, { color: theme.colors.textSubtle }]}>Scheduled: {formatDuration(lastCompletedSession.scheduledDurationSec)}</Text>
+        <Text style={[styles.summaryText, { color: theme.colors.textSubtle }]}>Actual: {formatDuration(lastCompletedSession.actualDurationSec)}</Text>
+        <Text style={[styles.summaryText, { color: theme.colors.textSubtle }]}>Interruptions: {lastCompletedSession.pauseCount}</Text>
+        <Text style={[styles.subtitle, styles.feedbackSubtitle, { color: theme.colors.text }]}>Were you able to concentrate?</Text>
         <View style={styles.buttonRow}>
           <Pressable
             style={[styles.primaryButton, styles.flexButton, styles.buttonSpacing, { backgroundColor: theme.colors.accent }, (submitting || lastCompletedSession.focusFeedback === 'yes') && styles.disabledButton]}
             disabled={submitting || lastCompletedSession.focusFeedback === 'yes'}
             onPress={() => handleFeedback('yes')}
           >
-            {submitting ? <ActivityIndicator size="small" color="#ffffff" /> : <Text style={styles.primaryButtonText}>はい</Text>}
+            {submitting ? <ActivityIndicator size="small" color="#ffffff" /> : <Text style={styles.primaryButtonText}>Yes</Text>}
           </Pressable>
           <Pressable
             style={[styles.secondaryButton, styles.flexButton, { borderColor: theme.colors.accent }, (submitting || lastCompletedSession.focusFeedback === 'no') && styles.disabledSecondary]}
@@ -226,7 +237,7 @@ function AppInner() {
           >
             {submitting
               ? <ActivityIndicator size="small" color={theme.colors.accent} />
-              : <Text style={[styles.secondaryButtonText, { color: theme.colors.accent }]}>いいえ</Text>}
+              : <Text style={[styles.secondaryButtonText, { color: theme.colors.accent }]}>No</Text>}
           </Pressable>
         </View>
         <SessionHistoryList history={history} loading={loadingHistory} />
@@ -250,16 +261,21 @@ function AppInner() {
   }
 
   return (
-    <SafeAreaView
-      edges={['top','left','right','bottom']}
+    <View
       style={[
         styles.safeArea,
-        { backgroundColor: (phase === 'running' || phase === 'paused') ? '#111312' : theme.colors.background },
+        { 
+          backgroundColor: theme.colors.inkBlack,
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        },
       ]}
     >
-      <StatusBar style={phase === 'running' || phase === 'paused' ? 'light' : 'dark'} />
+      <StatusBar style="light" />
       <View style={[styles.scrollContent, { paddingTop: 16 }]}>{content}</View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -329,9 +345,9 @@ const styles = StyleSheet.create({
   },
   firefly: {
     position: 'absolute',
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
     backgroundColor: 'rgba(110,139,119,0.85)',
     shadowColor: '#6E8B77',
     shadowOpacity: 0.7,
@@ -340,10 +356,17 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   focusSubtitle: {
-    fontSize: 16,
+    fontSize: 52, // タイマー文字（80px）の65%程度
     fontWeight: '400',
     letterSpacing: 0.5,
-    marginBottom: 24,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  doNotDisturbText: {
+    fontSize: 14, // 現在より少し大きく
+    fontWeight: '500', // medium程度の太字
+    letterSpacing: 0.3,
+    marginBottom: 16,
     textAlign: 'center',
   },
   focusTimer: {
@@ -351,6 +374,8 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     textAlign: 'center',
     marginVertical: 24,
+    ...(Platform.OS === 'ios' ? { fontVariant: ['tabular-nums'] } : {}),
+    ...(Platform.OS === 'android' ? { fontFamily: 'monospace', includeFontPadding: false } : {}),
   },
   focusCaption: {
     fontSize: 16,
@@ -400,7 +425,7 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     borderWidth: 1,
-    borderRadius: 16,
+    borderRadius: 24,
     paddingVertical: 16,
     paddingHorizontal: 24,
     alignItems: 'center',
