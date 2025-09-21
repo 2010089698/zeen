@@ -3,18 +3,21 @@
     "name": "Zeen",
     "slug": "zeen",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "android": {
+        "adaptiveIcon": {
+          "foregroundImage": "./assets/adaptive-icon-foreground.png",
+          "backgroundImage": "./assets/adaptive-icon-background.png"
+        }
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
-    "ios": {
-      "supportsTablet": false
-    },
-    "android": {
-      "package": "com.info.zeen",
-      "versionCode": 1
-    },
     "web": {},
     "extra": {
       "eas": {
