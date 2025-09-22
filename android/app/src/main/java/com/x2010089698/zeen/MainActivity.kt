@@ -1,4 +1,4 @@
-package com.info.zeen
+package com.x2010089698.zeen
 
 import android.os.Build
 import android.os.Bundle

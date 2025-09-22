@@ -1,4 +1,4 @@
-package com.info.zeen
+package com.x2010089698.zeen
 
 import android.app.Application
 import android.content.res.Configuration

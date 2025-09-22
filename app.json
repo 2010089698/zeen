@@ -10,10 +10,11 @@
       "backgroundColor": "#000000"
     },
     "android": {
-        "adaptiveIcon": {
-          "foregroundImage": "./assets/adaptive-foreground.png",
-          "backgroundColor": "#000000"
-        }
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-foreground.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.x2010089698.zeen"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,6 +25,9 @@
         "projectId": "182eb1e9-035c-460b-8ffe-677d3f2cfb4d"
       }
     },
-    "owner": "2010089698"
+    "owner": "2010089698",
+    "ios": {
+      "bundleIdentifier": "com.x2010089698.zeen"
+    }
   }
 }

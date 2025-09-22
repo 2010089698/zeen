@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.info.zeen'
+    namespace 'com.x2010089698.zeen'
     defaultConfig {
-        applicationId 'com.info.zeen'
+        applicationId 'com.x2010089698.zeen'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
